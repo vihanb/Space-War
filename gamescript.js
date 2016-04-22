@@ -32,11 +32,13 @@ var health = 100;
 //Initalization, KeyListenrs 
 document.addEventListener('keydown', function (event) {
     pressedKeys[event.keyCode] = true;
-}, true);
+    event.preventDefault();
+}, false);
 
 document.addEventListener('keyup', function (event) {
     pressedKeys[event.keyCode] = false;
-}, true);
+    event.preventDefault();
+}, false);
 
 function init() {
     pressedKeys[255] = 0;
