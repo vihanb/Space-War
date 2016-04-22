@@ -142,9 +142,9 @@ function paintBackground() {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
             if (backgroundRays[i].y % 16 == 0){
-              backgroundRays[i].x = 1070;
+              backgroundRays[i].x = 1025;
             } 
-            else backgroundRays[i].x = 1025;
+            else backgroundRays[i].x = 1070;
         }
         g2d.fillStyle = "#FFFFFF";
         g2d.fillRect(backgroundRays[i].x, backgroundRays[i].y, 40, 2);
