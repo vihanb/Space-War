@@ -125,7 +125,7 @@ function addMissile(x, y, dir) {
 //Graphics
 function initBackground() {
     var flag = true;
-    for (var y = 0; y < 925; y += 16) {
+    for (var y = 0; y < 925; y += 32) { //y+=16
         flag = !flag;
         var startx = 1000;
         if (flag == true) startx = 1070;
