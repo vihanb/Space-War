@@ -143,7 +143,7 @@ function paintBackground() {
     for (var i = 0; i < backgroundRays.length; i++) {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
-            if (backgroundRays[i].y % 16 == 0){
+            if (backgroundRays[i].y % 16 == 0){ //here, 16
               backgroundRays[i].x = 1025;
             } 
             else backgroundRays[i].x = 1070;
