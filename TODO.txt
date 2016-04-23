@@ -1,0 +1,6 @@
+-Fix background effect (more distance between rays, join effect on transitions)
+-GUI, MENU, WEAPON CUSTOMIZATION
+-Alien AI
+-In game power-ups
+-https://chat.stackexchange.com/transcript/message/29182333#29182333
+-https://chat.stackexchange.com/transcript/message/29182339#29182339

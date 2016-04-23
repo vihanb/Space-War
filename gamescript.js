@@ -32,11 +32,13 @@ var health = 100;
 //Initalization, KeyListenrs 
 document.addEventListener('keydown', function (event) {
     pressedKeys[event.keyCode] = true;
-}, true);
+    event.preventDefault();
+}, false);
 
 document.addEventListener('keyup', function (event) {
     pressedKeys[event.keyCode] = false;
-}, true);
+    event.preventDefault();
+}, false);
 
 function init() {
     pressedKeys[255] = 0;
@@ -123,7 +125,7 @@ function addMissile(x, y, dir) {
 //Graphics
 function initBackground() {
     var flag = true;
-    for (var y = 0; y < 925; y += 16) {
+    for (var y = 0; y < 925; y += 32) { //y+=16
         flag = !flag;
         var startx = 1000;
         if (flag == true) startx = 1070;
