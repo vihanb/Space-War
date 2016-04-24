@@ -83,7 +83,7 @@ function Alien(num) {
       //  if (this.x != this.xTrgt && this.y != this.yTrgt) {
             this.x = this.x-1;
             this.y = (this.slope * this.x) + this.yStart;
-            alert("Slope" + this.slope+ "Y:" + this.yStart);
+ //           alert("Slope" + this.slope+ "Y:" + this.yStart);
       //  }
     };
 
@@ -124,6 +124,7 @@ function checkWalls() {
 
     if (y-25 <= 0) y = 26; //y <= 10, y = 11
     if (y+25 >= 925) y = 899; //(y >= 910) y = 909;
+
 }
 
 function addMissile(x, y, dir) {
@@ -173,9 +174,19 @@ function paintTrail() {
     }
 }
 
+function drawScoreboard() {
+    g2d.fillStyle = "#640000";
+    g2d.fillRect(0, 0, 120, 65);
+    g2d.font = "20px Arial";
+    g2d.fillStyle = "#FFFFFF"
+    g2d.fillText("Score: " + score, 10, 30);
+    g2d.fillText("Health: " + health, 10, 50);
+}
+
 function paint() {
     paintBackground();
     paintTrail();
+    drawScoreboard();
     var spriteLoc = drawPoint(x, y, 50, 50);
     g2d.drawImage(playerSprite, spriteLoc[0], spriteLoc[1]);
     for (var i = 0; i < aliens.length; i++) {
@@ -189,12 +200,7 @@ function paint() {
         var missileLoc = drawPoint(missiles[i].x, missiles[i].y, 11, 5);
         g2d.drawImage(missiles[i].sprite, missileLoc[0], missileLoc[1]);
     }
-    g2d.fillStyle = "#640000";
-    g2d.fillRect(0, 0, 120, 65);
-    g2d.font = "20px Arial";
-    g2d.fillStyle = "#FFFFFF"
-    g2d.fillText("Score: " + score, 10, 30);
-    g2d.fillText("Health: " + health, 10, 50);
+  
 }
 
 //Key Handling 

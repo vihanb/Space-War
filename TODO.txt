@@ -7,3 +7,4 @@
 -No arrow functions
 -Sprite can go under scoreboard
 -Sprite can go half way through walls
+-git checkout -b gh-pages master
