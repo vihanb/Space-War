@@ -55,11 +55,11 @@ init();
 function Alien(num) {
     this.num = num;
     this.health = 3;
-    this.x = 950;
+    this.x = 1000;
     this.y = Math.round(Math.random() * 925);
     this.xTrgt = Math.round(Math.random() * 600) + 400;
-    this.yTrgt = Math.round(Math.random() * 925);
-    this.slope = (this.y - this.yTrgt) / (this.x - this.xTrgt);
+    this.yTrgt = Math.round(Math.random() * 800) + 100;
+    this.slope = -1*((this.y - this.yTrgt) / (this.x - this.xTrgt)); //remove -1*
     this.yStart = this.y;
     this.width = 15;
     this.height = 15;
@@ -78,6 +78,13 @@ function Alien(num) {
             }
         }
     };
+    
+    this.compute = function(x){
+        x = 1000-x; //AHA! GET REKT YOU STUPID BACKWARDS COORDINATE SYSTEM THAT MAKES NO LOGICAL OR INTUTIVE SENSE!
+        var cy= ((this.slope * x) + this.yStart); //^
+        return cy;//925-y;
+    }
+    
     this.move = function () {
         //come in from right side of screen and move to designated point
         var flag = true;
@@ -180,13 +187,12 @@ function drawPath(i) {
     g2d.beginPath();
     g2d.lineWidth="3";
     g2d.strokeStyle = "#14fe14";
-    //g2d.fillRect(0, 0, 1000, 1000);
-    var sy = (aliens[i].slope * 1000) + aliens[i].yStart;
-    var ey = (aliens[i].slope * 0) + aliens[i].yStart;
+    var sy = aliens[i].compute(1000);
+    var ey = aliens[i].compute(aliens[i].xTrgt); //remvove +25
     g2d.moveTo(1000, sy);
-    g2d.lineTo(0, ey);
+    g2d.lineTo(aliens[i].xTrgt, ey);
     g2d.stroke();
-   // console.log(aliens[i].num + ": " + sy + ", " + ey);
+    console.log("Sprite " + aliens[i].num + ": X: " + aliens[i].x + ", Y: " + aliens[i].y + ", Yint: " + aliens[i].yStart + ", M: " + aliens[i].slope + ", xTrgt: " + aliens[i].xTrgt + ", yTrgt "+ aliens[i].yTrgt +  ", CY: " + ey);
 
 }
 
@@ -268,9 +274,8 @@ function update() {
     updateMissiles();
     for (var i = 0; i < aliens.length; i++) {
         aliens[i].checkHit();
-        aliens[i].move();
-        //aliens[i].drawPath();
-      //  drawPath(i);
+        //aliens[i].move();
+
     }
     if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length));
     g2d.clearRect(0, 0, canvas.width, canvas.height);
