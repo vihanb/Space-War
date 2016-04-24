@@ -55,8 +55,12 @@ init();
 function Alien(num) {
     this.num = num;
     this.health = 3;
-    this.x = Math.round(Math.random() * 600) + 400,
-    this.y = Math.round(Math.random() * 925),
+    this.x = 900;
+    this.y = 500;
+    this.xTrgt = Math.round(Math.random() * 600) + 400;
+    this.yTrgt = Math.round(Math.random() * 925);
+    this.slope = (this.y - this.yTrgt) / (this.x - this.xTrgt);
+    this.yStart = this.y;
     this.width = 15;
     this.height = 15;
     this.sprite = alienSprite;
@@ -76,6 +80,11 @@ function Alien(num) {
     };
     this.move = function () {
         //come in from right side of screen and move to designated point
+      //  if (this.x != this.xTrgt && this.y != this.yTrgt) {
+            this.x = this.x-1;
+            this.y = (this.slope * this.x) + this.yStart;
+            alert("Slope" + this.slope+ "Y:" + this.yStart);
+      //  }
     };
 
     this.fire = function () {
@@ -110,11 +119,11 @@ function newEnemy() {
 }
 
 function checkWalls() {
-    if (x <= 10) x = 11;
-    if (x >= 400) x = 399;
+    if (x-25 <= 0) x = 26; //x <= 10, x=11
+    if (x+25 >= 400) x = 374;
 
-    if (y <= 10) y = 11;
-    if (y >= 910) y = 909;
+    if (y-25 <= 0) y = 26; //y <= 10, y = 11
+    if (y+25 >= 925) y = 899; //(y >= 910) y = 909;
 }
 
 function addMissile(x, y, dir) {
@@ -143,9 +152,9 @@ function paintBackground() {
     for (var i = 0; i < backgroundRays.length; i++) {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
-            if (backgroundRays[i].y % 16 == 0){ //here, 16
-              backgroundRays[i].x = 1025;
-            } 
+            if (backgroundRays[i].y % 16 == 0) { //here, 16
+                backgroundRays[i].x = 1025;
+            }
             else backgroundRays[i].x = 1070;
         }
         g2d.fillStyle = "#FFFFFF";
@@ -227,8 +236,10 @@ function update() {
     checkWalls();
     keyHandler();
     updateMissiles();
-    for (var i = 0; i < aliens.length; i++) aliens[i].checkHit();
-
+    for (var i = 0; i < aliens.length; i++) {
+        aliens[i].checkHit();
+        aliens[i].move();
+    }
     if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length - 1));
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
