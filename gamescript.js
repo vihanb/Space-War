@@ -88,12 +88,18 @@ function Alien(num) {
 
     this.move = function () {
         //come in from right side of screen and move to designated point
+        if(this.calc(this.totalLength, this.theta)[1] >= height-25 || this.calc(this.totalLength, this.theta)[1] <= 25) {
+                this.theta = this.theta * -1;
+        }
+        
         if (this.currentLength <= this.totalLength) {
             this.currentLength += 1; 
             this.x = this.calc(this.currentLength, this.theta)[0];
             this.y = this.calc(this.currentLength, this.theta)[1];
-
+         
         }
+        
+        
     };
 
     this.fire = function () {
@@ -216,7 +222,7 @@ function paint() {
         var current = aliens[i];
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
         g2d.drawImage(alienSprite, alienLoc[0], alienLoc[1]);
-       // drawPath(i);
+     //   drawPath(i);
     }
 
     for (var i = 0; i < missiles.length; i++) {
