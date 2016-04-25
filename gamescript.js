@@ -55,8 +55,12 @@ init();
 function Alien(num) {
     this.num = num;
     this.health = 3;
-    this.x = Math.round(Math.random() * 600) + 400,
-    this.y = Math.round(Math.random() * 925),
+    this.x = 1000;
+    this.y = Math.round(Math.random() * 925);
+    this.xTrgt = Math.round(Math.random() * 600) + 400;
+    this.yTrgt = Math.round(Math.random() * 800) + 100;
+    this.slope = -1*((this.y - this.yTrgt) / (this.x - this.xTrgt)); //remove -1*
+    this.yStart = this.y;
     this.width = 15;
     this.height = 15;
     this.sprite = alienSprite;
@@ -74,8 +78,22 @@ function Alien(num) {
             }
         }
     };
+    
+    this.compute = function(x){
+        x = 1000-x; //AHA! GET REKT YOU STUPID BACKWARDS COORDINATE SYSTEM THAT MAKES NO LOGICAL OR INTUTIVE SENSE!
+        var cy= ((this.slope * x) + this.yStart); //^
+        return cy;//925-y;
+    }
+    
     this.move = function () {
         //come in from right side of screen and move to designated point
+ 
+        if (this.x > this.xTrgt) {
+            this.x = this.x - 3;
+            this.y = this.compute(this.x);
+
+        }
+        console.log("Sprite " + this.num + ": X: " + this.x + ", Y: " + this.y + ", Yint: " + this.yStart + ", M: " + this.slope);
     };
 
     this.fire = function () {
@@ -110,11 +128,12 @@ function newEnemy() {
 }
 
 function checkWalls() {
-    if (x <= 10) x = 11;
-    if (x >= 400) x = 399;
+    if (x - 25 <= 0) x = 26; //x <= 10, x=11
+    if (x + 25 >= 400) x = 374;
 
-    if (y <= 10) y = 11;
-    if (y >= 910) y = 909;
+    if (y - 25 <= 0) y = 26; //y <= 10, y = 11
+    if (y + 25 >= 925) y = 899; //(y >= 910) y = 909;
+
 }
 
 function addMissile(x, y, dir) {
@@ -143,9 +162,9 @@ function paintBackground() {
     for (var i = 0; i < backgroundRays.length; i++) {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
-            if (backgroundRays[i].y % 16 == 0){ //here, 16
-              backgroundRays[i].x = 1025;
-            } 
+            if (backgroundRays[i].y % 16 == 0) { //here, 16
+                backgroundRays[i].x = 1025;
+            }
             else backgroundRays[i].x = 1070;
         }
         g2d.fillStyle = "#FFFFFF";
@@ -155,7 +174,18 @@ function paintBackground() {
 
 }
 
+function drawPath(i) {
+    g2d.beginPath();
+    g2d.lineWidth="3";
+    g2d.strokeStyle = "#14fe14";
+    var sy = aliens[i].compute(1000);
+    var ey = aliens[i].compute(aliens[i].xTrgt); //remvove +25
+    g2d.moveTo(1000, sy);
+    g2d.lineTo(aliens[i].xTrgt, ey);
+    g2d.stroke();
+    console.log("Sprite " + aliens[i].num + ": X: " + aliens[i].x + ", Y: " + aliens[i].y + ", Yint: " + aliens[i].yStart + ", M: " + aliens[i].slope + ", xTrgt: " + aliens[i].xTrgt + ", yTrgt "+ aliens[i].yTrgt +  ", CY: " + ey);
 
+}
 
 function paintTrail() {
     g2d.fillStyle = "#14fe14";
@@ -164,9 +194,19 @@ function paintTrail() {
     }
 }
 
+function drawScoreboard() {
+    g2d.fillStyle = "#640000";
+    g2d.fillRect(0, 0, 120, 65);
+    g2d.font = "20px Arial";
+    g2d.fillStyle = "#FFFFFF"
+    g2d.fillText("Score: " + score, 10, 30);
+    g2d.fillText("Health: " + health, 10, 50);
+}
+
 function paint() {
     paintBackground();
     paintTrail();
+    drawScoreboard();
     var spriteLoc = drawPoint(x, y, 50, 50);
     g2d.drawImage(playerSprite, spriteLoc[0], spriteLoc[1]);
     for (var i = 0; i < aliens.length; i++) {
@@ -174,18 +214,14 @@ function paint() {
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
         g2d.fillStyle = current.color;
         g2d.drawImage(alienSprite, alienLoc[0], alienLoc[1]);
+        drawPath(i);
     }
 
     for (var i = 0; i < missiles.length; i++) {
         var missileLoc = drawPoint(missiles[i].x, missiles[i].y, 11, 5);
         g2d.drawImage(missiles[i].sprite, missileLoc[0], missileLoc[1]);
     }
-    g2d.fillStyle = "#640000";
-    g2d.fillRect(0, 0, 120, 65);
-    g2d.font = "20px Arial";
-    g2d.fillStyle = "#FFFFFF"
-    g2d.fillText("Score: " + score, 10, 30);
-    g2d.fillText("Health: " + health, 10, 50);
+
 }
 
 //Key Handling 
@@ -227,9 +263,12 @@ function update() {
     checkWalls();
     keyHandler();
     updateMissiles();
-    for (var i = 0; i < aliens.length; i++) aliens[i].checkHit();
+    for (var i = 0; i < aliens.length; i++) {
+        aliens[i].checkHit();
+        aliens[i].move();
 
-    if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length - 1));
+    }
+    if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length));
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
 
