@@ -87,19 +87,10 @@ function Alien(num) {
     
     this.move = function () {
         //come in from right side of screen and move to designated point
-        var flag = true;
-        /*   if(this.yTrgt > this.yStart) {
-               if(this.y >= this.yTrgt) {
-                   flag = false;
-               }
-           } else {
-               if(this.y <= this.yTrgt) {
-                  flag = false;
-               }
-           } */
-        if (this.x > this.xTrgt && flag == true) {
-            this.x = this.x - 0.1;
-            this.y = (this.slope * this.x) + this.yStart;
+ 
+        if (this.x > this.xTrgt) {
+            this.x = this.x - 3;
+            this.y = this.compute(this.x);
 
         }
         console.log("Sprite " + this.num + ": X: " + this.x + ", Y: " + this.y + ", Yint: " + this.yStart + ", M: " + this.slope);
@@ -274,7 +265,7 @@ function update() {
     updateMissiles();
     for (var i = 0; i < aliens.length; i++) {
         aliens[i].checkHit();
-        //aliens[i].move();
+        aliens[i].move();
 
     }
     if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length));
