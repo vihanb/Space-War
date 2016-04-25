@@ -8,6 +8,8 @@
 //Graphics Context
 var canvas = document.getElementById("gameDisplay");
 var g2d = canvas.getContext("2d");
+var width = 1000;
+var height = 925;
 
 //Global Variables
 var x = 100;
@@ -55,17 +57,15 @@ init();
 function Alien(num) {
     this.num = num;
     this.health = 3;
-    this.x = 1000;
-    this.y = Math.round(Math.random() * 925);
-    this.xTrgt = Math.round(Math.random() * 600) + 400;
-    this.yTrgt = Math.round(Math.random() * 800) + 100;
-    this.slope = -1*((this.y - this.yTrgt) / (this.x - this.xTrgt)); //remove -1*
+    this.x = width;
+    this.y = Math.round(Math.random() * height);
+    this.theta = (Math.random() * 180) - 90;
+    this.totalLength = Math.round((Math.random() * 500)+100);
+    this.currentLength = 0;
     this.yStart = this.y;
     this.width = 15;
     this.height = 15;
     this.sprite = alienSprite;
-    this.setColor = () => "#" + (Math.floor(Math.random() * 16777214)).toString(16),
-    this.color = this.setColor();
     this.isAlive = false,
     this.getHealth = function () {
         return this.health;
@@ -78,22 +78,22 @@ function Alien(num) {
             }
         }
     };
-    
-    this.compute = function(x){
-        x = 1000-x; //AHA! GET REKT YOU STUPID BACKWARDS COORDINATE SYSTEM THAT MAKES NO LOGICAL OR INTUTIVE SENSE!
-        var cy= ((this.slope * x) + this.yStart); //^
-        return cy;//925-y;
+
+    this.calc = function (hyp, theta) { //add 180 to theta for coordinate switch or multiply by -1
+        theta = -1 * theta;
+        var x = width - (Math.cos(toRadians(theta)) * hyp);
+        var y = ((Math.sin(toRadians(theta)) * hyp) + this.yStart); 
+        return [x, y];
     }
-    
+
     this.move = function () {
         //come in from right side of screen and move to designated point
- 
-        if (this.x > this.xTrgt) {
-            this.x = this.x - 3;
-            this.y = this.compute(this.x);
+        if (this.currentLength <= this.totalLength) {
+            this.currentLength += 1; 
+            this.x = this.calc(this.currentLength, this.theta)[0];
+            this.y = this.calc(this.currentLength, this.theta)[1];
 
         }
-        console.log("Sprite " + this.num + ": X: " + this.x + ", Y: " + this.y + ", Yint: " + this.yStart + ", M: " + this.slope);
     };
 
     this.fire = function () {
@@ -123,16 +123,20 @@ function manageAI() {
 
 }
 
+function toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
 function newEnemy() {
     aliens.push(new Alien(aliens.length - 1));
 }
 
 function checkWalls() {
-    if (x - 25 <= 0) x = 26; //x <= 10, x=11
+    if (x - 25 <= 0) x = 26; 
     if (x + 25 >= 400) x = 374;
 
-    if (y - 25 <= 0) y = 26; //y <= 10, y = 11
-    if (y + 25 >= 925) y = 899; //(y >= 910) y = 909;
+    if (y - 25 <= 0) y = 26; 
+    if (y + 25 >= height) y = height-25-1; 
 
 }
 
@@ -144,9 +148,9 @@ function addMissile(x, y, dir) {
 //Graphics
 function initBackground() {
     var flag = true;
-    for (var y = 0; y < 925; y += 32) { //y+=16
+    for (var y = 0; y < height; y += 32) { 
         flag = !flag;
-        var startx = 1000;
+        var startx = width;
         if (flag == true) startx = 1070;
         else startx = 1025;
 
@@ -162,7 +166,7 @@ function paintBackground() {
     for (var i = 0; i < backgroundRays.length; i++) {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
-            if (backgroundRays[i].y % 16 == 0) { //here, 16
+            if (backgroundRays[i].y % 16 == 0) { 
                 backgroundRays[i].x = 1025;
             }
             else backgroundRays[i].x = 1070;
@@ -176,14 +180,13 @@ function paintBackground() {
 
 function drawPath(i) {
     g2d.beginPath();
-    g2d.lineWidth="3";
+    g2d.lineWidth = "3";
     g2d.strokeStyle = "#14fe14";
-    var sy = aliens[i].compute(1000);
-    var ey = aliens[i].compute(aliens[i].xTrgt); //remvove +25
-    g2d.moveTo(1000, sy);
-    g2d.lineTo(aliens[i].xTrgt, ey);
+    g2d.moveTo(width, aliens[i].yStart);
+    var pt = new Point(aliens[i].calc(aliens[i].totalLength, aliens[i].theta)[0], aliens[i].calc(aliens[i].totalLength, aliens[i].theta)[1]);
+    g2d.lineTo(pt.x, pt.y);
     g2d.stroke();
-    console.log("Sprite " + aliens[i].num + ": X: " + aliens[i].x + ", Y: " + aliens[i].y + ", Yint: " + aliens[i].yStart + ", M: " + aliens[i].slope + ", xTrgt: " + aliens[i].xTrgt + ", yTrgt "+ aliens[i].yTrgt +  ", CY: " + ey);
+    //console.log("Sprite " + aliens[i].num + ", X: " + aliens[i].x + ", Y: " + aliens[i].y + ", Theta: " + aliens[i].theta + ", Length: " + aliens[i].totalLength + ", FX: " + pt.x + ", FY: " + pt.y);
 
 }
 
@@ -212,16 +215,28 @@ function paint() {
     for (var i = 0; i < aliens.length; i++) {
         var current = aliens[i];
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
-        g2d.fillStyle = current.color;
         g2d.drawImage(alienSprite, alienLoc[0], alienLoc[1]);
-        drawPath(i);
+       // drawPath(i);
     }
 
     for (var i = 0; i < missiles.length; i++) {
         var missileLoc = drawPoint(missiles[i].x, missiles[i].y, 11, 5);
         g2d.drawImage(missiles[i].sprite, missileLoc[0], missileLoc[1]);
     }
-
+    
+    
+    //debug:
+    /*   var angle = 180;
+       g2d.beginPath();
+       g2d.lineWidth="3";
+       g2d.strokeStyle = "#14fe14";
+       g2d.moveTo(500, 500);
+       g2d.lineTo(100 * Math.cos(toRadians(angle)) + 500, 100 * Math.sin(toRadians(angle)) + 500)
+       g2d.stroke();
+       g2d.moveTo(500, 500);
+       g2d.lineTo(100 * Math.cos(toRadians(-180)) + 500, 100 * Math.sin(toRadians(-180)) + 500)
+       g2d.stroke();
+   */
 }
 
 //Key Handling 
@@ -249,7 +264,7 @@ function keyHandler() {
 
 function updateMissiles() {
     for (var i = 0; i < missiles.length; i++) {
-        if (missiles[i].x >= 1000 || missiles[i].x <= 0) missiles.splice(i, 1);
+        if (missiles[i].x >= width || missiles[i].x <= 0) missiles.splice(i, 1);
         else if (missiles[i].dir == true) missiles[i].x += missiles[i].speed;
         else missiles[i].x -= missiles[i].speed;
     }
