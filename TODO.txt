@@ -2,9 +2,6 @@
 -GUI, MENU, WEAPON CUSTOMIZATION
 -Alien AI
 -In game power-ups
--https://chat.stackexchange.com/transcript/message/29182333#29182333
--https://chat.stackexchange.com/transcript/message/29182339#29182339
 -No arrow functions
--Sprite can go under scoreboard
--Sprite can go half way through walls
+-don't allow aliens to leave board (perhaps calculate rand x,y, then use thoes to make angle atan(dY/dX))
 -git checkout -b gh-pages master
