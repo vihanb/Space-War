@@ -28,6 +28,7 @@ var spriteSpeed = 0.3; //in pixels per second
 var spriteMissileDelay = 0;
 var score = 0;
 var health = 100;
+var unique = 0; 
 
 
 
@@ -54,8 +55,8 @@ function init() {
 init();
 
 //Class declerations 
-function Alien(num) {
-    this.num = num;
+function Alien(uniqueID) {
+    this.uniqueID = uniqueID;
     this.health = 3;
     this.x = width;
     this.y = Math.round(Math.random() * height);
@@ -63,18 +64,31 @@ function Alien(num) {
     this.totalLength = Math.round((Math.random() * 500)+100);
     this.currentLength = 0;
     this.yStart = this.y;
-    this.width = 15;
-    this.height = 15;
+    this.width = 50;
+    this.height = 50;
     this.sprite = alienSprite;
     this.isAlive = false,
+    this.lastHit = 0;
     this.getHealth = function () {
         return this.health;
     };
-    this.checkHit = function () {
+    
+    this.intersects = function(x,y,w,h) {
+        var flag = true;
+        if(!(y >= this.y-25 && y <= this.y+25)) flag = false;
+        if(!(x >= this.x-25 && y <= this.x+25)) flag = false;
+        return flag; 
+    }
+    this.checkHit = function (currentIndex) {
+        if(gameTime-this.lastHit >= 500)
         for (var i = 0; i < missiles.length; i++) {
-            if (missiles[i].x == this.x && missiles[i].y == this.y) {
-                alert("hit");
-                aliens.splice(this.num, 1);
+            if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
+                //alert("hit");
+                aliens = aliens.filter(function(i){ return (i.uniqueID != this.uniqueID)}.bind(this));
+                //aliens.splice(currentIndex,1);
+                this.lastHit = gameTime;
+                console.log(aliens);
+                console.log(this.uniqueID);
             }
         }
     };
@@ -103,7 +117,7 @@ function Alien(num) {
     };
 
     this.fire = function () {
-        //use player x/y coords to fire a missile at that point (not tracking ATM)
+        //use player x/y coords to fire a missile at that point (not tracking ATM), diagonal fire using same trig as movement
     };
 }
 function Point(mx, my) {
@@ -131,10 +145,6 @@ function manageAI() {
 
 function toRadians(degrees) {
     return degrees * (Math.PI / 180);
-}
-
-function newEnemy() {
-    aliens.push(new Alien(aliens.length - 1));
 }
 
 function checkWalls() {
@@ -285,11 +295,14 @@ function update() {
     keyHandler();
     updateMissiles();
     for (var i = 0; i < aliens.length; i++) {
-        aliens[i].checkHit();
         aliens[i].move();
+        aliens[i].checkHit(i);
 
     }
-    if (aliens.length <= 1) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length));
+    if (aliens.length <= 1) for (var i = 0; i < 5; i++) {
+        aliens.push(new Alien(unique));
+        unique++;
+    }
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
 
