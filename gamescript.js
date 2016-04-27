@@ -28,6 +28,7 @@ var spriteSpeed = 0.3; //in pixels per second
 var spriteMissileDelay = 0;
 var score = 0;
 var health = 100;
+var unique = 0; 
 
 
 
@@ -54,8 +55,8 @@ function init() {
 init();
 
 //Class declerations 
-function Alien(num) {
-    this.num = num;
+function Alien(uniqueID) {
+    this.uniqueID = uniqueID;
     this.health = 3;
     this.x = width;
     this.y = Math.round(Math.random() * height);
@@ -78,15 +79,16 @@ function Alien(num) {
         if(!(x >= this.x-25 && y <= this.x+25)) flag = false;
         return flag; 
     }
-    
-    this.checkHit = function () {
+    this.checkHit = function (currentIndex) {
         if(gameTime-this.lastHit >= 500)
         for (var i = 0; i < missiles.length; i++) {
             if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
-                alert("hit");
-                aliens.splice(this.num, 1);
+                //alert("hit");
+                aliens = aliens.filter(function(i){ return (i.uniqueID != this.uniqueID)}.bind(this));
+                //aliens.splice(currentIndex,1);
                 this.lastHit = gameTime;
-                console.log("#: " + this.num + ", X: " + this.x + ", Y: " + this.y);
+                console.log(aliens);
+                console.log(this.uniqueID);
             }
         }
     };
@@ -143,10 +145,6 @@ function manageAI() {
 
 function toRadians(degrees) {
     return degrees * (Math.PI / 180);
-}
-
-function newEnemy() {
-    aliens.push(new Alien(aliens.length - 1));
 }
 
 function checkWalls() {
@@ -297,11 +295,14 @@ function update() {
     keyHandler();
     updateMissiles();
     for (var i = 0; i < aliens.length; i++) {
-        aliens[i].checkHit();
         aliens[i].move();
+        aliens[i].checkHit(i);
 
     }
-    if (aliens.length <= 0) for (var i = 0; i < 5; i++) aliens.push(new Alien(aliens.length));
+    if (aliens.length <= 1) for (var i = 0; i < 5; i++) {
+        aliens.push(new Alien(unique));
+        unique++;
+    }
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
 
