@@ -17,5 +17,6 @@ As I implement more and more features, this will (hopefully) evolve into a more 
    <li> Mid game unlockables, stored data </li>
    <li> Local (maybe one day online) multiplayer</li>
    <li>In game power-ups</li>
+   <li>Cool sounds/music</li>
 
 </ul>

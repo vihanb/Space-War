@@ -1,10 +1,15 @@
--test missiles, aliens not dieing?
 -fix stupid glitch where alien flickers because theta is switching between itself and -itself due to length overlap.
 -GUI, MENU, WEAPON CUSTOMIZATION
 -Alien AI
 -In game power-ups
--No arrow functions
--git checkout -b gh-pages master
--Aliens break at max distance to the left
+-No arrow functions (browser compatibility)
 -animations, effect (alien explosion effect)
--bullet continues past alien after hitting it
+-Main menu, settings, ship select, customization (ship colors, weapons, extras)
+-Unique alien AI and leveling. Mini-bosses and bosses at certain progression points
+-Mid game unlockables, stored data
+-Local (maybe one day online) multiplayer
+-In game power-ups
+-Cool sounds/music
+-Random alien sprites
+-Better alien constructors, health, damage, etc.
+-Difficulty multiplier 
