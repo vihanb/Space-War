@@ -5,3 +5,4 @@
 -In game power-ups
 -No arrow functions
 -git checkout -b gh-pages master
+-Aliens break at max distance to the left

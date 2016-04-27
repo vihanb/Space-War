@@ -299,7 +299,7 @@ function update() {
         aliens[i].checkHit(i);
 
     }
-    if (aliens.length <= 1) for (var i = 0; i < 5; i++) {
+    if (aliens.length <= 2) for (var i = 0; i < 5; i++) {
         aliens.push(new Alien(unique));
         unique++;
     }
