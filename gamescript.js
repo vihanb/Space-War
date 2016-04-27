@@ -61,7 +61,7 @@ function Alien(uniqueID) {
     this.x = width;
     this.y = Math.round(Math.random() * height);
     this.theta = (Math.random() * 180) - 90;
-    this.totalLength = Math.round((Math.random() * 500)+100);
+    this.totalLength = Math.round((Math.random() * 500) + 100);
     this.currentLength = 0;
     this.yStart = this.y;
     this.width = 50;
@@ -72,23 +72,23 @@ function Alien(uniqueID) {
     this.getHealth = function () {
         return this.health;
     };
-    
-    this.intersects = function(x,y,w,h) {
+
+    this.intersects = function (x, y, w, h) {
         var flag = true;
-        if(!(y >= this.y-25 && y <= this.y+25)) flag = false;
-        if(!(x >= this.x-25 && y <= this.x+25)) flag = false;
-        return flag; 
+        if (!(y >= this.y - 25 && y <= this.y + 25)) flag = false;
+        if (!(x >= this.x - 25 && x/*typo, y*/ <= this.x + 25)) flag = false; //Caught ya!
+        return flag;
     }
-    this.checkHit = function (currentIndex) {
-        if(gameTime-this.lastHit >= 500)
-        for (var i = 0; i < missiles.length; i++) {
-            if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
-                //alert("hit");
-                aliens = aliens.filter(function(i){ return (i.uniqueID != this.uniqueID)}.bind(this));
-                //aliens.splice(currentIndex,1);
-                this.lastHit = gameTime;
-                console.log(aliens);
-                console.log(this.uniqueID);
+    this.checkHit = function () {
+        if (gameTime - this.lastHit >= 500) {
+            for (var i = 0; i < missiles.length; i++) {
+                if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
+                    aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
+                    this.lastHit = gameTime;
+                    console.log(aliens);
+                    console.log(this.uniqueID);
+                }
+               
             }
         }
     };
@@ -96,24 +96,24 @@ function Alien(uniqueID) {
     this.calc = function (hyp, theta) { //add 180 to theta for coordinate switch or multiply by -1
         theta = -1 * theta;
         var x = width - (Math.cos(toRadians(theta)) * hyp);
-        var y = ((Math.sin(toRadians(theta)) * hyp) + this.yStart); 
+        var y = ((Math.sin(toRadians(theta)) * hyp) + this.yStart);
         return [x, y];
     }
 
     this.move = function () {
         //come in from right side of screen and move to designated point
-        if(this.calc(this.totalLength, this.theta)[1] >= height-25 || this.calc(this.totalLength, this.theta)[1] <= 25) {
-                this.theta = this.theta * -1;
+        if (this.calc(this.totalLength, this.theta)[1] >= height - 25 || this.calc(this.totalLength, this.theta)[1] <= 25) {
+            this.theta = this.theta * -1;
         }
-        
+
         if (this.currentLength <= this.totalLength) {
-            this.currentLength += 1; 
+            this.currentLength += 1;
             this.x = this.calc(this.currentLength, this.theta)[0];
             this.y = this.calc(this.currentLength, this.theta)[1];
-         
+
         }
-        
-        
+
+
     };
 
     this.fire = function () {
@@ -148,11 +148,11 @@ function toRadians(degrees) {
 }
 
 function checkWalls() {
-    if (x - 25 <= 0) x = 26; 
+    if (x - 25 <= 0) x = 26;
     if (x + 25 >= 400) x = 374;
 
-    if (y - 25 <= 0) y = 26; 
-    if (y + 25 >= height) y = height-25-1; 
+    if (y - 25 <= 0) y = 26;
+    if (y + 25 >= height) y = height - 25 - 1;
 
 }
 
@@ -164,7 +164,7 @@ function addMissile(x, y, dir) {
 //Graphics
 function initBackground() {
     var flag = true;
-    for (var y = 0; y < height; y += 32) { 
+    for (var y = 0; y < height; y += 32) {
         flag = !flag;
         var startx = width;
         if (flag == true) startx = 1070;
@@ -182,7 +182,7 @@ function paintBackground() {
     for (var i = 0; i < backgroundRays.length; i++) {
         backgroundRays[i].x--;
         if (backgroundRays[i].x + 40 <= 0) {
-            if (backgroundRays[i].y % 16 == 0) { 
+            if (backgroundRays[i].y % 16 == 0) {
                 backgroundRays[i].x = 1025;
             }
             else backgroundRays[i].x = 1070;
@@ -232,7 +232,7 @@ function paint() {
         var current = aliens[i];
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
         g2d.drawImage(alienSprite, alienLoc[0], alienLoc[1]);
-     //   drawPath(i);
+        //   drawPath(i);
     }
 
     for (var i = 0; i < missiles.length; i++) {
@@ -279,9 +279,10 @@ function keyHandler() {
 //Update subroutine(s)
 
 function updateMissiles() {
+    missiles = missiles.filter(function (i) { return !(i.x > 1100 || i.x < -100) });
     for (var i = 0; i < missiles.length; i++) {
-        if (missiles[i].x >= width || missiles[i].x <= 0) missiles.splice(i, 1);
-        else if (missiles[i].dir == true) missiles[i].x += missiles[i].speed;
+        //if (missiles[i].x >= width || missiles[i].x <= 0) missiles.splice(i, 1);
+        if (missiles[i].dir == true) missiles[i].x += missiles[i].speed;
         else missiles[i].x -= missiles[i].speed;
     }
 }
@@ -296,7 +297,7 @@ function update() {
     updateMissiles();
     for (var i = 0; i < aliens.length; i++) {
         aliens[i].move();
-        aliens[i].checkHit(i);
+        aliens[i].checkHit();
 
     }
     if (aliens.length <= 2) for (var i = 0; i < 5; i++) {
