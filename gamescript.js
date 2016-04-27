@@ -29,6 +29,7 @@ var spriteMissileDelay = 0;
 var score = 0;
 var health = 100;
 var unique = 0; 
+var level;
 
 
 
@@ -57,7 +58,7 @@ init();
 //Class declerations 
 function Alien(uniqueID) {
     this.uniqueID = uniqueID;
-    this.health = 3;
+    this.health = 1;
     this.x = width;
     this.y = Math.round(Math.random() * height);
     this.theta = (Math.random() * 180) - 90;
@@ -67,7 +68,6 @@ function Alien(uniqueID) {
     this.width = 50;
     this.height = 50;
     this.sprite = alienSprite;
-    this.isAlive = false,
     this.lastHit = 0;
     this.getHealth = function () {
         return this.health;
@@ -79,14 +79,17 @@ function Alien(uniqueID) {
         if (!(x >= this.x - 25 && x/*typo, y*/ <= this.x + 25)) flag = false; //Caught ya!
         return flag;
     }
+    
     this.checkHit = function () {
         if (gameTime - this.lastHit >= 500) {
             for (var i = 0; i < missiles.length; i++) {
                 if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
-                    aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
+                    this.health--;
                     this.lastHit = gameTime;
                     console.log(aliens);
                     console.log(this.uniqueID);
+                    missiles.splice(i, 1); //could have adverse effects 
+                    if(this.health <= 0) aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
                 }
                
             }
@@ -269,7 +272,7 @@ function keyHandler() {
     if (pressedKeys[40] == true) {
         y += spriteSpeed * interval;
     }
-    if (pressedKeys[32] == true && spriteMissileDelay >= 100) {
+    if (pressedKeys[32] == true && spriteMissileDelay >= 200) {
         spriteMissileDelay = 0;
         addMissile(this.x, this.y + 20, true);
         addMissile(this.x, this.y - 20, true);
@@ -307,4 +310,25 @@ function update() {
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
 
+}
+
+//progression manager:
+function progressionManager(level) {
+    switch(level) {
+        case 1:
+            spawn
+            break;
+        case 2: 
+            break;
+        case 3:
+            break;
+    }
+}
+
+function spawn(amount, health, damage) {
+    
+}
+
+function miniboss() {
+    
 }
