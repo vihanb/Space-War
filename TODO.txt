@@ -6,3 +6,5 @@
 -No arrow functions
 -git checkout -b gh-pages master
 -Aliens break at max distance to the left
+-animations, effect (alien explosion effect)
+-bullet continues past alien after hitting it
