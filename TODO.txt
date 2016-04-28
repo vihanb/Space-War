@@ -16,3 +16,4 @@
 -Web workers
 -Javascript 
 -I'd recommend using babel+ES6+browserify, but that's probably over-complicating it. Create a global namespace, or object such as window.MyApp = {};. You can keep all of your apps functions/code in functions in that namespace, and that'll be easier. Then just import the multiple JS files
+-Local storage

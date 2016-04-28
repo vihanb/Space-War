@@ -15,7 +15,8 @@ var height = 925;
 var x = 100;
 var y = 100;
 var playerSprite = new Image(50, 50);
-var alienSprite = new Image(50, 50);
+//var alienSprite = new Image(50, 50);
+var alienSprites = [];
 var missileSprite = new Image(11, 5);
 var aliens = [];
 var pressedKeys = [];
@@ -50,8 +51,11 @@ function init() {
     for (var i = 0; i < pressedKeys.length; i++) pressedKeys[i] = false;
     window.setInterval(update, interval);
     playerSprite.src = "resources\\Sprite.png";
-    alienSprite.src = "resources\\Alien.png";
     missileSprite.src = "resources\\Missile.png";
+    for(var i = 0; i<2;i++) {
+        alienSprites[i] = new Image(50, 50);
+        alienSprites[i].src = "resources\\Aliens\\Alien"+i+".png";
+    }
     initBackground();
 }
 init();
@@ -71,7 +75,7 @@ function Alien(uniqueID, type, health, damage, score) {
     this.yStart = this.y;
     this.width = 50;
     this.height = 50;
-    this.sprite = alienSprite;
+    this.sprite = alienSprites[type];
     this.lastHit = 0;
     this.getHealth = function () {
         return this.health;
@@ -240,7 +244,7 @@ function paint() {
     for (var i = 0; i < aliens.length; i++) {
         var current = aliens[i];
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
-        g2d.drawImage(alienSprite, alienLoc[0], alienLoc[1]);
+        g2d.drawImage(current.sprite, alienLoc[0], alienLoc[1]);
         //   drawPath(i);
     }
 
@@ -333,8 +337,8 @@ function progressionManager(level) {
             break;
         case 2: 
             alert("Level 2");
-            spawn(5, 0, 2, 2, 2);
-            spawn(5, 1, 2, 2, 2);
+            spawn(5, 0, 1, 2, 2);
+            spawn(5, 1, 1, 2, 2);
             break;
         case 3:
             alert("Level 3");
