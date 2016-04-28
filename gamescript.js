@@ -14,10 +14,11 @@ var height = 925;
 //Global Variables
 var x = 100;
 var y = 100;
+
 var playerSprite = new Image(50, 50);
-//var alienSprite = new Image(50, 50);
 var alienSprites = [];
 var missileSprite = new Image(11, 5);
+
 var aliens = [];
 var pressedKeys = [];
 var trailCoords = [];
@@ -32,6 +33,8 @@ var score = 0;
 var health = 100;
 var uniqueID = 0; 
 var level = 0;
+
+var laser;
 
 
 
@@ -50,11 +53,15 @@ function init() {
     pressedKeys[255] = 0;
     for (var i = 0; i < pressedKeys.length; i++) pressedKeys[i] = false;
     window.setInterval(update, interval);
-    playerSprite.src = "resources\\Sprite.png";
-    missileSprite.src = "resources\\Missile.png";
+    
+    laser = new Audio("resources\\Sounds\\laserblast.mp3");
+
+    
+    playerSprite.src = "resources\\Sprites\\Sprite.png";
+    missileSprite.src = "resources\\Sprites\\Missile.png";
     for(var i = 0; i<2;i++) {
         alienSprites[i] = new Image(50, 50);
-        alienSprites[i].src = "resources\\Aliens\\Alien"+i+".png";
+        alienSprites[i].src = "resources\\Sprites\\Aliens\\Alien"+i+".png";
     }
     initBackground();
 }
@@ -270,6 +277,7 @@ function paint() {
 
 //Key Handling 
 function keyHandler() {
+    
     if (pressedKeys[37] == true) {
         x -= spriteSpeed * interval;
     }
@@ -286,7 +294,9 @@ function keyHandler() {
         spriteMissileDelay = 0;
         addMissile(this.x, this.y + 20, true);
         addMissile(this.x, this.y - 20, true);
+        laser.play();
     }
+   if(pressedKeys[32] == false) laser.currentTime = 0;
 }
 
 //Update subroutine(s)
