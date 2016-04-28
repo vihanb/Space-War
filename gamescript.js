@@ -22,14 +22,15 @@ var pressedKeys = [];
 var trailCoords = [];
 var missiles = [];
 var backgroundRays = [];
+var bosses = [];
 var gameTime = 0; //in miliseconds
 var interval = 10; //in miliseconds
 var spriteSpeed = 0.3; //in pixels per second 
 var spriteMissileDelay = 0;
 var score = 0;
 var health = 100;
-var unique = 0; 
-var level;
+var uniqueID = 0; 
+var level = 0;
 
 
 
@@ -56,9 +57,12 @@ function init() {
 init();
 
 //Class declerations 
-function Alien(uniqueID) {
-    this.uniqueID = uniqueID;
-    this.health = 1;
+function Alien(uniqueID, type, health, damage, score) {
+    this.uniqueID= uniqueID;
+    this.type = type;
+    this.health = health;
+    this.damage = damage;
+    this.score = score;
     this.x = width;
     this.y = Math.round(Math.random() * height);
     this.theta = (Math.random() * 180) - 90;
@@ -86,10 +90,12 @@ function Alien(uniqueID) {
                 if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
                     this.health--;
                     this.lastHit = gameTime;
-                    console.log(aliens);
                     console.log(this.uniqueID);
                     missiles.splice(i, 1); //could have adverse effects 
-                    if(this.health <= 0) aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
+                    if(this.health <= 0) { 
+                        score+=this.score;
+                        aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
+                    }
                 }
                
             }
@@ -301,33 +307,47 @@ function update() {
     for (var i = 0; i < aliens.length; i++) {
         aliens[i].move();
         aliens[i].checkHit();
+       
+    }
 
-    }
-    if (aliens.length <= 2) for (var i = 0; i < 5; i++) {
-        aliens.push(new Alien(unique));
-        unique++;
-    }
+       
+    if(aliens.length == 0 && bosses.length == 0) {
+        level++;
+        progressionManager(level);
+        console.log(aliens);
+    } 
+    
+
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
-
+    
 }
+
 
 //progression manager:
 function progressionManager(level) {
     switch(level) {
         case 1:
-            spawn
+            alert("Level 1");
+            spawn(5, 0, 1, 1, 1);
             break;
         case 2: 
+            alert("Level 2");
+            spawn(5, 0, 2, 2, 2);
+            spawn(5, 1, 2, 2, 2);
             break;
         case 3:
+            alert("Level 3");
             break;
     }
 }
 
-function spawn(amount, health, damage) {
-    
-}
+function spawn(amount, type, health, damage, score) {
+    for(var i = 0; i < amount; i++) {
+        aliens.push(new Alien(uniqueID, type, health, damage, score));
+        uniqueID++;        
+    }
+};
 
 function miniboss() {
     
