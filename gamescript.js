@@ -166,7 +166,9 @@ function Missile(startx, starty, dir) { //true is forwad
 }
 
 //Random Functions
-var drawPoint = (x, y, w, h) => [x - 0.5 * w, y - 0.5 * h];
+var drawPoint = function(x, y, w, h) {
+    return [x - 0.5 * w, y - 0.5 * h];
+}
 
 function toRadians(degrees) {
     return degrees * (Math.PI / 180);
