@@ -14,11 +14,6 @@ var height = 925;
 //Global Variables
 var x = 100;
 var y = 100;
-
-var playerSprite = new Image(50, 50);
-var alienSprites = [];
-var missileSprite = new Image(11, 5);
-
 var aliens = [];
 var pressedKeys = [];
 var trailCoords = [];
@@ -31,9 +26,15 @@ var spriteSpeed = 0.3; //in pixels per second
 var spriteMissileDelay = 0;
 var score = 0;
 var health = 100;
-var uniqueID = 0; 
+var uniqueID = 0;
 var level = 0;
 
+//Sprites/Visuals
+var playerSprite = new Image(50, 50);
+var alienSprites = [];
+var missileSprite = new Image(11, 5);
+
+//Sounds
 var laser;
 
 
@@ -53,15 +54,15 @@ function init() {
     pressedKeys[255] = 0;
     for (var i = 0; i < pressedKeys.length; i++) pressedKeys[i] = false;
     window.setInterval(update, interval);
-    
-    laser = new Audio("resources\\Sounds\\laserblast.mp3");
 
-    
+    laser = new Audio("resources\\Sounds\\laserblast.wav");
+
+
     playerSprite.src = "resources\\Sprites\\Sprite.png";
     missileSprite.src = "resources\\Sprites\\Missile.png";
-    for(var i = 0; i<2;i++) {
+    for (var i = 0; i < 2; i++) {
         alienSprites[i] = new Image(50, 50);
-        alienSprites[i].src = "resources\\Sprites\\Aliens\\Alien"+i+".png";
+        alienSprites[i].src = "resources\\Sprites\\Aliens\\Alien" + i + ".png";
     }
     initBackground();
 }
@@ -69,7 +70,7 @@ init();
 
 //Class declerations 
 function Alien(uniqueID, type, health, damage, score) {
-    this.uniqueID= uniqueID;
+    this.uniqueID = uniqueID;
     this.type = type;
     this.health = health;
     this.damage = damage;
@@ -84,6 +85,9 @@ function Alien(uniqueID, type, health, damage, score) {
     this.height = 50;
     this.sprite = alienSprites[type];
     this.lastHit = 0;
+    this.startHealth = health;
+    this.damageIntensity = 0;
+    this.damagedEffect = false;
     this.getHealth = function () {
         return this.health;
     };
@@ -94,21 +98,26 @@ function Alien(uniqueID, type, health, damage, score) {
         if (!(x >= this.x - 25 && x/*typo, y*/ <= this.x + 25)) flag = false; //Caught ya!
         return flag;
     }
-    
+
     this.checkHit = function () {
         if (gameTime - this.lastHit >= 500) {
             for (var i = 0; i < missiles.length; i++) {
-                if (this.intersects(missiles[i].x, missiles[i].y, 11, 5)) {
+                if (this.intersects(missiles[i].x, missiles[i].y, 11, 5) && missiles[i].dir == true) {
                     this.health--;
                     this.lastHit = gameTime;
                     console.log(this.uniqueID);
                     missiles.splice(i, 1); //could have adverse effects 
-                    if(this.health <= 0) { 
-                        score+=this.score;
+                    if (this.health <= 0) {
+                        score += this.score;
                         aliens = aliens.filter(function (i) { return (i.uniqueID != this.uniqueID) }.bind(this));
                     }
+                    
+                    if(this.health < this.startHealth) {
+                        this.damagedEffect = true;
+                        this.damageIntensity++;
+                    } 
                 }
-               
+
             }
         }
     };
@@ -156,12 +165,8 @@ function Missile(startx, starty, dir) { //true is forwad
     this.speed = 10;
 }
 
-//Functions
+//Random Functions
 var drawPoint = (x, y, w, h) => [x - 0.5 * w, y - 0.5 * h];
-
-function manageAI() {
-
-}
 
 function toRadians(degrees) {
     return degrees * (Math.PI / 180);
@@ -181,7 +186,6 @@ function addMissile(x, y, dir) {
 }
 
 
-//Graphics
 function initBackground() {
     var flag = true;
     for (var y = 0; y < height; y += 32) {
@@ -195,6 +199,19 @@ function initBackground() {
         }
 
 
+    }
+}
+
+
+//Graphics
+function paintDamageEffect(current) {
+    if(this.gameTime%10 == 0) {
+        g2d.beginPath();
+        g2d.arc(current.x, current.y, 35, 0, toRadians(360));
+        //g2d.strokeStyle = "#14fe14";
+        g2d.fillStyle = "rgba(100, 3, 3, 0.5)";
+        //g2d.stroke();
+        g2d.fill();
     }
 }
 
@@ -222,8 +239,6 @@ function drawPath(i) {
     var pt = new Point(aliens[i].calc(aliens[i].totalLength, aliens[i].theta)[0], aliens[i].calc(aliens[i].totalLength, aliens[i].theta)[1]);
     g2d.lineTo(pt.x, pt.y);
     g2d.stroke();
-    //console.log("Sprite " + aliens[i].num + ", X: " + aliens[i].x + ", Y: " + aliens[i].y + ", Theta: " + aliens[i].theta + ", Length: " + aliens[i].totalLength + ", FX: " + pt.x + ", FY: " + pt.y);
-
 }
 
 function paintTrail() {
@@ -253,6 +268,7 @@ function paint() {
         var alienLoc = drawPoint(current.x, current.y, current.width, current.height);
         g2d.drawImage(current.sprite, alienLoc[0], alienLoc[1]);
         //   drawPath(i);
+        if(current.damagedEffect == true)  paintDamageEffect(current);
     }
 
     for (var i = 0; i < missiles.length; i++) {
@@ -260,24 +276,13 @@ function paint() {
         g2d.drawImage(missiles[i].sprite, missileLoc[0], missileLoc[1]);
     }
     
+   
     
-    //debug:
-    /*   var angle = 180;
-       g2d.beginPath();
-       g2d.lineWidth="3";
-       g2d.strokeStyle = "#14fe14";
-       g2d.moveTo(500, 500);
-       g2d.lineTo(100 * Math.cos(toRadians(angle)) + 500, 100 * Math.sin(toRadians(angle)) + 500)
-       g2d.stroke();
-       g2d.moveTo(500, 500);
-       g2d.lineTo(100 * Math.cos(toRadians(-180)) + 500, 100 * Math.sin(toRadians(-180)) + 500)
-       g2d.stroke();
-   */
 }
 
 //Key Handling 
 function keyHandler() {
-    
+
     if (pressedKeys[37] == true) {
         x -= spriteSpeed * interval;
     }
@@ -290,13 +295,16 @@ function keyHandler() {
     if (pressedKeys[40] == true) {
         y += spriteSpeed * interval;
     }
-    if (pressedKeys[32] == true && spriteMissileDelay >= 200) {
+    if (pressedKeys[32] == true && spriteMissileDelay >= 400) {
         spriteMissileDelay = 0;
         addMissile(this.x, this.y + 20, true);
         addMissile(this.x, this.y - 20, true);
         laser.play();
     }
-   if(pressedKeys[32] == false) laser.currentTime = 0;
+    if (pressedKeys[32] == false) {
+        laser.pause();
+        laser.currentTime = 0;
+    }
 }
 
 //Update subroutine(s)
@@ -304,7 +312,6 @@ function keyHandler() {
 function updateMissiles() {
     missiles = missiles.filter(function (i) { return !(i.x > 1100 || i.x < -100) });
     for (var i = 0; i < missiles.length; i++) {
-        //if (missiles[i].x >= width || missiles[i].x <= 0) missiles.splice(i, 1);
         if (missiles[i].dir == true) missiles[i].x += missiles[i].speed;
         else missiles[i].x -= missiles[i].speed;
     }
@@ -321,34 +328,34 @@ function update() {
     for (var i = 0; i < aliens.length; i++) {
         aliens[i].move();
         aliens[i].checkHit();
-       
+
     }
 
-       
-    if(aliens.length == 0 && bosses.length == 0) {
+
+    if (aliens.length == 0 && bosses.length == 0) {
         level++;
         progressionManager(level);
         console.log(aliens);
-    } 
-    
+    }
+
 
     g2d.clearRect(0, 0, canvas.width, canvas.height);
     paint();
-    
+
 }
 
 
-//progression manager:
+//Progression Manager:
 function progressionManager(level) {
-    switch(level) {
+    switch (level) {
         case 1:
             alert("Level 1");
             spawn(5, 0, 1, 1, 1);
             break;
-        case 2: 
+        case 2:
             alert("Level 2");
             spawn(5, 0, 1, 2, 2);
-            spawn(5, 1, 1, 2, 2);
+            spawn(5, 1, 2, 2, 2);
             break;
         case 3:
             alert("Level 3");
@@ -357,12 +364,12 @@ function progressionManager(level) {
 }
 
 function spawn(amount, type, health, damage, score) {
-    for(var i = 0; i < amount; i++) {
+    for (var i = 0; i < amount; i++) {
         aliens.push(new Alien(uniqueID, type, health, damage, score));
-        uniqueID++;        
+        uniqueID++;
     }
 };
 
 function miniboss() {
-    
+
 }
